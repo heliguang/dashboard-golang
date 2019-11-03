@@ -54,6 +54,16 @@ func apiRouter() http.Handler {
 				"name":         "Super Admin"},
 		)
 	})
+	router.GET("/user/routes", func(c *gin.Context) {
+		token := c.Query("token")
+		logger.Info("get user info, user token:" + token)
+
+		c.JSON(http.StatusOK,
+			gin.H{"code": 20000,
+				"routes": config.Conf.Routes,
+			},
+		)
+	})
 	router.GET("/table/list", func(c *gin.Context) {
 		item := []struct {
 			Id          int    `json:"id"`
