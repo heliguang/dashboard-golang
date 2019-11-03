@@ -1,0 +1,29 @@
+web_address: 0.0.0.0:8080
+api_address: 0.0.0.0:9090
+
+routes:
+- path: /401
+  component: /views/error-page/401
+
+- path: /404
+  component: /views/error-page/404
+  icon: 404
+  title: 404
+
+- path: /permission
+  redirect: /401
+  icon: lock
+  title: Permission
+  children:
+    - path: /401
+      component: /views/error-page/401
+
+    - path: /404
+      component: /views/error-page/404
+      icon: 404
+      title: 404
+
+    - path: /404
+      component: /views/error-page/404
+      icon: 404
+      title: 404
