@@ -9,7 +9,6 @@ type User struct {
 	Account     string `xorm:"unique" json:"account"` //唯一的
 	Password    string `json:"-"`
 	Role        string `json:"role"`
-	Status      int    `json:"status"`
 	UpdatedTime int64  `xorm:"updated" json:"-"` //修改后自动更新时间
 	CreateTime  int64  `xorm:"created" json:"-"` //创建时间
 }

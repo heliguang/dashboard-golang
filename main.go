@@ -1,11 +1,11 @@
 package main
 
 import (
+	"dashboard/gin"
 	"encoding/json"
 	"fmt"
 
 	"dashboard/config"
-	"dashboard/gin"
 	"dashboard/logger"
 	"dashboard/storage"
 )
@@ -26,7 +26,6 @@ func createTestDatabase() {
 		Account:  "admin",
 		Password: "123456",
 		Role:     "admin",
-		Status:   0,
 	}
 	fmt.Println(storage.UserInsert(adminUser))
 
@@ -34,7 +33,6 @@ func createTestDatabase() {
 		Account:  "user1",
 		Password: "123456",
 		Role:     "admin",
-		Status:   1,
 	}
 	fmt.Println(storage.UserInsert(user1))
 
@@ -42,7 +40,6 @@ func createTestDatabase() {
 		Account:  "user2",
 		Password: "123456",
 		Role:     "admin",
-		Status:   0,
 	}
 	fmt.Println(storage.UserInsert(user2))
 }

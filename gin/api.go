@@ -4,7 +4,6 @@ import (
 	"dashboard/config"
 	"dashboard/logger"
 	"dashboard/storage"
-
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -16,10 +15,9 @@ type Login struct {
 }
 
 type User struct {
-	User     string `form:"user" json:"user" xml:"user"  binding:"required"`
+	Account  string `form:"account" json:"account" xml:"account"  binding:"required"`
 	Password string `form:"password" json:"password" xml:"password" binding:"required"`
 	Role     string `form:"role" json:"role" xml:"role" binding:"required"`
-	Status   string `form:"status" json:"status" xml:"status" binding:"required"`
 }
 
 func apiRouter() http.Handler {
@@ -132,41 +130,31 @@ func apiRouter() http.Handler {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"code": 40000})
 		} else {
-			c.JSON(http.StatusOK, gin.H{"code": 20000, "users": users})
-		}
-	})
-	router.POST("/admin/addUser", func(c *gin.Context) {
-		var user User
-		if err := c.ShouldBindJSON(&user); err != nil {
-			logger.Error("login bind json err[" + err.Error() + "]")
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		logger.Info("login info:" + user.User + " " + user.Password + " " + user.Role)
-		_, err := storage.UserInsert(&storage.User{
-			Account:  user.User,
-			Password: user.Password,
-			Role:     user.Role,
-		})
-
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"code": 40000})
-		} else {
-			c.JSON(http.StatusOK, gin.H{"code": 20000})
+			allUsers := make([]User, 0)
+			for _, user := range users {
+				allUsers = append(allUsers, User{
+					Account:  user.Account,
+					Password: user.Password,
+					Role:     user.Role,
+				})
+			}
+			c.JSON(http.StatusOK, gin.H{"code": 20000, "users": allUsers, "roles": []string{"roleA", "roleB", "roleC"}})
 		}
 	})
 	router.POST("/admin/deleteUser", func(c *gin.Context) {
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
-			logger.Error("login bind json err[" + err.Error() + "]")
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			logger.Warn("delete user bind json err[" + err.Error() + "]")
+		}
+		if user.Account == "" {
+			logger.Error("delete user account is empty")
+			c.JSON(http.StatusBadRequest, gin.H{"code": 40000})
 			return
 		}
 
-		logger.Info("login info:" + user.User + " " + user.Password + " " + user.Role)
+		logger.Info("delete user:" + user.Account)
 
-		_, err := storage.UserDelete(user.User)
+		_, err := storage.UserDelete(user.Account)
 
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"code": 40000})
@@ -174,7 +162,7 @@ func apiRouter() http.Handler {
 			c.JSON(http.StatusOK, gin.H{"code": 20000})
 		}
 	})
-	router.POST("/admin/updateUser", func(c *gin.Context) {
+	router.POST("/admin/replaceUser", func(c *gin.Context) {
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
 			logger.Error("login bind json err[" + err.Error() + "]")
@@ -182,17 +170,33 @@ func apiRouter() http.Handler {
 			return
 		}
 
-		logger.Info("login info:" + user.User + " " + user.Password + " " + user.Role)
-		_, err := storage.UserUpdate(user.User, &storage.User{
-			Account:  user.User,
-			Password: user.Password,
-			Role:     user.Role,
-		})
-
-		if err != nil {
+		logger.Info("login info:" + user.Account + " " + user.Password + " " + user.Role)
+		if exist, err := storage.UserExist(user.Account); err != nil {
 			c.JSON(http.StatusOK, gin.H{"code": 40000})
 		} else {
-			c.JSON(http.StatusOK, gin.H{"code": 20000})
+			if exist {
+				logger.Info("user exist, start user update")
+				if _, err = storage.UserUpdate(user.Account, &storage.User{
+					Account:  user.Account,
+					Password: user.Password,
+					Role:     user.Role,
+				}); err != nil {
+					c.JSON(http.StatusOK, gin.H{"code": 40000})
+				} else {
+					c.JSON(http.StatusOK, gin.H{"code": 20000})
+				}
+			} else {
+				logger.Info("user note exist, start user insert")
+				if _, err = storage.UserInsert(&storage.User{
+					Account:  user.Account,
+					Password: user.Password,
+					Role:     user.Role,
+				}); err != nil {
+					c.JSON(http.StatusOK, gin.H{"code": 40000})
+				} else {
+					c.JSON(http.StatusOK, gin.H{"code": 20000})
+				}
+			}
 		}
 	})
 	return router
