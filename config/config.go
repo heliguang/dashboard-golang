@@ -12,12 +12,11 @@ import (
 var Conf = &Config{}
 
 type Route struct {
-	Path      string  `yaml:"path" json:"path,omitempty"`
-	Icon      string  `yaml:"icon" json:"icon,omitempty"`
-	Title     string  `yaml:"title" json:"title,omitempty"`
-	Component string  `yaml:"component" json:"component,omitempty"`
-	Redirect  string  `yaml:"redirect" json:"redirect,omitempty"`
-	Children  []Route `yaml:"children" json:"children,omitempty"`
+	Path      string            `yaml:"path" json:"path,omitempty"`
+	Component string            `yaml:"component" json:"component,omitempty"`
+	Redirect  string            `yaml:"redirect" json:"redirect,omitempty"`
+	Meta      map[string]string `yaml:"meta" json:"meta,omitempty"`
+	Children  []Route           `yaml:"children" json:"children,omitempty"`
 }
 
 type Config struct {

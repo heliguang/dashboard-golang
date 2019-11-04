@@ -54,7 +54,7 @@ func apiRouter() http.Handler {
 				"name":         "Super Admin"},
 		)
 	})
-	router.GET("/user/routes", func(c *gin.Context) {
+	router.GET("/user/asyncRoutes", func(c *gin.Context) {
 		token := c.Query("token")
 		logger.Info("get user info, user token:" + token)
 

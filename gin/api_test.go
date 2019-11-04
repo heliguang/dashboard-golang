@@ -20,7 +20,7 @@ func TestApiPing(t *testing.T) {
 	fmt.Println("Get request result:" + string(body))
 }
 func TestApiUserRoutes(t *testing.T) {
-	pingUrl := "http://" + config.Conf.ApiAddress + "/user/routes?token=admin-token"
+	pingUrl := "http://" + config.Conf.ApiAddress + "/user/asyncRoutes?token=admin-token"
 	resp, _ := http.Get(pingUrl)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
