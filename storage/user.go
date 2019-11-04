@@ -9,6 +9,7 @@ type User struct {
 	Account     string `xorm:"unique" json:"account"` //唯一的
 	Password    string `json:"-"`
 	Role        string `json:"role"`
+	Status      int    `json:"status"`
 	UpdatedTime int64  `xorm:"updated" json:"-"` //修改后自动更新时间
 	CreateTime  int64  `xorm:"created" json:"-"` //创建时间
 }
@@ -59,4 +60,13 @@ func UserExist(account string) (bool, error) {
 		return false, err
 	}
 	return is, nil
+}
+
+func UserGetAll() ([]User, error) {
+	users := make([]User, 0)
+	err := engine.Find(&users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

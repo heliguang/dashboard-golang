@@ -1,12 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"dashboard/config"
 	"dashboard/gin"
 	"dashboard/logger"
 	"dashboard/storage"
-	"encoding/json"
-	"fmt"
 )
 
 func createTestDatabase() {
@@ -25,8 +26,25 @@ func createTestDatabase() {
 		Account:  "admin",
 		Password: "123456",
 		Role:     "admin",
+		Status:   0,
 	}
 	fmt.Println(storage.UserInsert(adminUser))
+
+	user1 := &storage.User{
+		Account:  "user1",
+		Password: "123456",
+		Role:     "admin",
+		Status:   1,
+	}
+	fmt.Println(storage.UserInsert(user1))
+
+	user2 := &storage.User{
+		Account:  "user2",
+		Password: "123456",
+		Role:     "admin",
+		Status:   0,
+	}
+	fmt.Println(storage.UserInsert(user2))
 }
 
 func main() {

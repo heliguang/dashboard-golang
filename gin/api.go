@@ -3,6 +3,8 @@ package gin
 import (
 	"dashboard/config"
 	"dashboard/logger"
+	"dashboard/storage"
+
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -11,6 +13,13 @@ import (
 type Login struct {
 	User     string `form:"user" json:"user" xml:"user"  binding:"required"`
 	Password string `form:"password" json:"password" xml:"password" binding:"required"`
+}
+
+type User struct {
+	User     string `form:"user" json:"user" xml:"user"  binding:"required"`
+	Password string `form:"password" json:"password" xml:"password" binding:"required"`
+	Role     string `form:"role" json:"role" xml:"role" binding:"required"`
+	Status   string `form:"status" json:"status" xml:"status" binding:"required"`
 }
 
 func apiRouter() http.Handler {
@@ -117,6 +126,74 @@ func apiRouter() http.Handler {
 		c.JSON(http.StatusOK,
 			gin.H{"code": 20000, "data": data},
 		)
+	})
+	router.GET("/admin/getAllUser", func(c *gin.Context) {
+		users, err := storage.UserGetAll()
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"code": 40000})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"code": 20000, "users": users})
+		}
+	})
+	router.POST("/admin/addUser", func(c *gin.Context) {
+		var user User
+		if err := c.ShouldBindJSON(&user); err != nil {
+			logger.Error("login bind json err[" + err.Error() + "]")
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		logger.Info("login info:" + user.User + " " + user.Password + " " + user.Role)
+		_, err := storage.UserInsert(&storage.User{
+			Account:  user.User,
+			Password: user.Password,
+			Role:     user.Role,
+		})
+
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"code": 40000})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"code": 20000})
+		}
+	})
+	router.POST("/admin/deleteUser", func(c *gin.Context) {
+		var user User
+		if err := c.ShouldBindJSON(&user); err != nil {
+			logger.Error("login bind json err[" + err.Error() + "]")
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		logger.Info("login info:" + user.User + " " + user.Password + " " + user.Role)
+
+		_, err := storage.UserDelete(user.User)
+
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"code": 40000})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"code": 20000})
+		}
+	})
+	router.POST("/admin/updateUser", func(c *gin.Context) {
+		var user User
+		if err := c.ShouldBindJSON(&user); err != nil {
+			logger.Error("login bind json err[" + err.Error() + "]")
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		logger.Info("login info:" + user.User + " " + user.Password + " " + user.Role)
+		_, err := storage.UserUpdate(user.User, &storage.User{
+			Account:  user.User,
+			Password: user.Password,
+			Role:     user.Role,
+		})
+
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"code": 40000})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"code": 20000})
+		}
 	})
 	return router
 }
