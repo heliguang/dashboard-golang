@@ -2,12 +2,12 @@ web_address: 0.0.0.0:8080
 api_address: 0.0.0.0:9090
 
 routes:
-  - path: /form
+  - path: /401
     component: /layout
     children:
       - path: index
-        component: /views/form/index
-        meta: {title: Form, icon: form}
+        component: /views/401/index
+        meta: {title: 401, icon: 401}
   - path: /nform
     component: /layout
     children:
