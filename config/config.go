@@ -37,7 +37,7 @@ func init() {
 	yamlPath := "config.yaml"
 	switch runtime.GOOS {
 	case "darwin":
-		yamlPath = ""
+		yamlPath = "/Users/heliguang/Documents/project/golang/src/dashboard/config.yaml"
 	case "windows":
 		yamlPath = "D:/project/golang/src/dashboard/config.yaml"
 	}
