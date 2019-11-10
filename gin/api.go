@@ -20,6 +20,12 @@ type User struct {
 	Role     string `form:"role" json:"role" xml:"role" binding:"required"`
 }
 
+type Role struct {
+	Name   string `form:"name" json:"name" xml:"name"  binding:"required"`
+	Desc   string `form:"desc" json:"desc" xml:"desc" binding:"required"`
+	Routes string `form:"routes" json:"routes" xml:"routes" binding:"required"`
+}
+
 func apiRouter() http.Handler {
 	router := gin.New()
 	router.Use(cors(), ginLogger())
@@ -125,7 +131,7 @@ func apiRouter() http.Handler {
 			gin.H{"code": 20000, "data": data},
 		)
 	})
-	router.GET("/admin/getAllUser", func(c *gin.Context) {
+	router.GET("/users", func(c *gin.Context) {
 		users, err := storage.UserGetAll()
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"code": 40000})
@@ -141,7 +147,7 @@ func apiRouter() http.Handler {
 			c.JSON(http.StatusOK, gin.H{"code": 20000, "users": allUsers, "roles": []string{"roleA", "roleB", "roleC"}})
 		}
 	})
-	router.POST("/admin/deleteUser", func(c *gin.Context) {
+	router.DELETE("/user", func(c *gin.Context) {
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
 			logger.Warn("delete user bind json err[" + err.Error() + "]")
@@ -162,7 +168,7 @@ func apiRouter() http.Handler {
 			c.JSON(http.StatusOK, gin.H{"code": 20000})
 		}
 	})
-	router.POST("/admin/replaceUser", func(c *gin.Context) {
+	router.POST("/user", func(c *gin.Context) {
 		var user User
 		if err := c.ShouldBindJSON(&user); err != nil {
 			logger.Error("login bind json err[" + err.Error() + "]")
@@ -191,6 +197,64 @@ func apiRouter() http.Handler {
 					Account:  user.Account,
 					Password: user.Password,
 					Role:     user.Role,
+				}); err != nil {
+					c.JSON(http.StatusOK, gin.H{"code": 40000})
+				} else {
+					c.JSON(http.StatusOK, gin.H{"code": 20000})
+				}
+			}
+		}
+	})
+	router.GET("/routes", func(c *gin.Context) {
+		var user User
+		if err := c.ShouldBindJSON(&user); err != nil {
+			logger.Warn("get routes bind json err[" + err.Error() + "]")
+		}
+		if user.Account == "" {
+			logger.Error("get routes user account is empty")
+			c.JSON(http.StatusBadRequest, gin.H{"code": 40000})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"code": 20000, "routes": config.Conf.Routes})
+	})
+	router.GET("/roles", func(c *gin.Context) {
+		roles, err := storage.RoleGetAll()
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"code": 40000})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"code": 20000, "roles": roles})
+		}
+	})
+	router.POST("/role", func(c *gin.Context) {
+		var role Role
+		if err := c.ShouldBindJSON(&role); err != nil {
+			logger.Error("role bind json err[" + err.Error() + "]")
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		logger.Info("role info:" + role.Name + " " + role.Desc + " " + role.Routes)
+		if exist, err := storage.RoleExist(role.Name); err != nil {
+			c.JSON(http.StatusOK, gin.H{"code": 40000})
+		} else {
+			if exist {
+				logger.Info("user exist, start user update")
+				if _, err = storage.RoleUpdate(&storage.Role{
+					Name:   role.Name,
+					Desc:   role.Desc,
+					Routes: role.Routes,
+				}); err != nil {
+					c.JSON(http.StatusOK, gin.H{"code": 40000})
+				} else {
+					c.JSON(http.StatusOK, gin.H{"code": 20000})
+				}
+			} else {
+				logger.Info("user note exist, start user insert")
+				if _, err = storage.RoleInsert(&storage.Role{
+					Name:   role.Name,
+					Desc:   role.Desc,
+					Routes: role.Routes,
 				}); err != nil {
 					c.JSON(http.StatusOK, gin.H{"code": 40000})
 				} else {

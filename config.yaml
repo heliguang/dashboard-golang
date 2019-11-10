@@ -14,3 +14,24 @@ routes:
       - path: index
         component: /unknown/path
         meta: {title: 未知页面, icon: form}
+  - path: /charts
+    component: /layout
+    redirect: 'noRedirect'
+    name: 'Charts'
+    meta: {title: charts, icon: chart}
+    children:
+      - path: index
+        component: /unknown/path
+        meta: {title: 未知页面, icon: form}
+      - path: index
+        component: /unknown/path
+        meta: {title: 未知页面, icon: form}
+      - path: index
+        component: /unknown/path
+        meta: {title: 未知页面, icon: form}
+  - path: /nform
+    component: /layout
+    children:
+      - path: index
+        component: /unknown/path
+        meta: {title: 未知页面, icon: form}
